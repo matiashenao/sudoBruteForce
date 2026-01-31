@@ -22,6 +22,6 @@
 ```bash
 git clone https://github.com/matiashenao/sudoBruteForce.git
 cd sudoBruteForce
-chmod +x bruteforce.sh
-./bruteforce.sh <usuario> <diccionario.txt>
+chmod +x sudoBruteForce.sh
+./sudoBruteForce.sh <usuario>$(whoami) <diccionario.txt>
 ```
