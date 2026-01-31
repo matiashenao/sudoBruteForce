@@ -25,3 +25,15 @@ cd sudoBruteForce
 chmod +x sudoBruteForce.sh
 ./sudoBruteForce.sh $(whoami) /usr/share/wordlists/rockyou.txt
 ```
+## 🚀 Instalación y Uso #2
+```bash
+# 1. Extraer el hash del usuario (ejemplo: kali)
+sudo grep "^kali:" /etc/shadow > hash_objetivo.txt
+
+# 2. Ejecutar John the Ripper con el cargador universal de Linux
+# Esto soluciona errores de formatos modernos como Yescrypt ($y$)
+john --format=crypt --wordlist=/usr/share/wordlists/rockyou.txt hash_objetivo.txt
+
+# 3. Ver la contraseña encontrada en pantalla
+john --show --format=crypt hash_objetivo.txt
+```
