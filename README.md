@@ -23,5 +23,5 @@
 git clone https://github.com/matiashenao/sudoBruteForce.git
 cd sudoBruteForce
 chmod +x sudoBruteForce.sh
-./sudoBruteForce.sh <usuario>$(whoami) <diccionario.txt>
+./sudoBruteForce.sh $(whoami) /usr/share/wordlists/rockyou.txt
 ```
